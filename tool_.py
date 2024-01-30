@@ -75,7 +75,7 @@ def update_combo(table,column,cmb):
         cmb.config(values=namelist)
     else:
         cmb.config(values="Empty")
-    print(rows)
+    # print(rows)
     con.close()
 
 def update_entry(table,check_id,value,column,var_ent):

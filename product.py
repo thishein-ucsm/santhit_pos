@@ -44,7 +44,7 @@ class product:
         for i in ent_list:
             Entry(self.root,textvariable=i,font=("goudy old style",15,"bold"),bg="lightyellow").place(x=170,y=y,width=180)
             y+=38
-        print(y)
+        # print(y)
         # Label(self.root,text="Status",bg="white",font=("goudy old style",15,"bold")).place(x=50,y=210)    
         self.cmb_status=ttk.Combobox(self.root,textvariable=self.var_status,values=("Select","Active","Inactive","Out of Stock"),state='readonly',justify=CENTER,font=("goudy old style",15))
         self.cmb_status.place(x=170,y=278,width=180)
@@ -150,7 +150,8 @@ class product:
 
 
         except IndexError as ex:
-            messagebox.showerror("Ops!","There is no record on table or Be Careful to click on row",parent=self.root)
+            pass
+            # messagebox.showerror("Ops!","There is no record on table or Be Careful to click on row",parent=self.root)
     def show(self):
         con=connect_db()
         mycur= con.cursor()

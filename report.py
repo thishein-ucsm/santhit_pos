@@ -90,7 +90,6 @@ class reporter_:
         plt.setp(autotexts,size=8,weight="bold")
        
 
-        # Embed the pie chart in a Tkinter canvas
         self.canvas = FigureCanvasTkAgg(fig, master=self.right_frame)
         self.canvas.get_tk_widget().pack()
 
@@ -171,12 +170,9 @@ class reporter_:
                             self.datas.append(r[1])
                             self.visual.append(r[0]+"="+str(int(r[1])))
 
-
-
                 except Exception as ex:
                     messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
-            case  "Build":
-                print("Build data requesting....")
+           
             case "Product":
                 print("Product data requesting....")
             case "Customer":

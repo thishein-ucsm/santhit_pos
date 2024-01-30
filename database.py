@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `product` (
   `description` varchar(500) NOT NULL,
   `qty` varchar(100) DEFAULT 'n/a',
   `price` varchar(100) DEFAULT 'n/a',
+  `sprice` varchar(100) DEFAULT 'n/a',
   `status` varchar(100) DEFAULT 'active',
 
   `category` varchar(100) NOT NULL,
