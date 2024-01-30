@@ -80,33 +80,13 @@ class reporter_:
         if self.canvas!=None: self.canvas.get_tk_widget().pack_forget()
         labels = ['A', 'B', 'C', 'D']
         self.chart_datas = [15, 90, 45, 10]  # These values should add up to 100% for a pie chart
-        labels=[]
-        datas=[]
-        visual=[]
-        con=connect_db() #module from database.py
-        mycur= con.cursor()
-        try:
-            sql="SELECT pid,sum(total) FROM saleorder group by pid"
-            # val=(self.var_buyid.get(),)
-            mycur.execute(sql)
-            row=mycur.fetchall()
-            
-            if row is not None:
-                for r in row:
-                    labels.append(r[0])
-                    datas.append(r[1])
-                    visual.append(r[0]+"="+str(int(r[1])))
-
-
-
-        except Exception as ex:
-            messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
+        
         fig, ax = plt.subplots(figsize=(9,9),subplot_kw=dict(aspect="equal"))
         
-        wedges, texts, autotexts=ax.pie(datas, autopct='%1.1f%%', textprops={'size':'smaller'},startangle=90)
+        wedges, texts, autotexts=ax.pie(self.datas, autopct='%1.1f%%', textprops={'size':'smaller'},startangle=90)
         ax.set_title('Sample Pie Chart')
 
-        ax.legend(wedges, visual,title="Summary",loc="best",bbox_to_anchor=(1, 0, 0.5, 1))
+        ax.legend(wedges, self.visual,title="Summary",loc="best",bbox_to_anchor=(1, 0, 0.5, 1))
         plt.setp(autotexts,size=8,weight="bold")
        
 
@@ -169,14 +149,32 @@ class reporter_:
         canvas_widget = self.canvas.get_tk_widget()
         canvas_widget.pack()
     def getData(self):
-        # if self.var_type_list.get()=="Buy":
-        #     pass
-        # elif self.var_type_list
+        self.labels=[]
+        self.datas=[]
+        self.visual=[]
+        con=connect_db() #module from database.py
+        mycur= con.cursor()
+        
         match(self.var_type_list.get()):
             case "Buy":
                 print("Buy data requesting....")
             case "Sell":
-                print("Sell data requesting....")
+                try:
+                    sql="SELECT pid,sum(total) FROM saleorder group by pid"
+                    # val=(self.var_buyid.get(),)
+                    mycur.execute(sql)
+                    row=mycur.fetchall()
+                    
+                    if row is not None:
+                        for r in row:
+                            self.labels.append(r[0])
+                            self.datas.append(r[1])
+                            self.visual.append(r[0]+"="+str(int(r[1])))
+
+
+
+                except Exception as ex:
+                    messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
             case  "Build":
                 print("Build data requesting....")
             case "Product":
@@ -186,7 +184,9 @@ class reporter_:
             case "Supplier":
                 print("Supplier data requesting....")
             case "Employee":
-                print("Employee data requesting....")    
+                print("Employee data requesting....")
+            case _:
+                print("other")
             
 # "Buy","Sell","Build","Product","Customer","Supplier","Employer"
 
@@ -205,6 +205,9 @@ class reporter_:
         if self.canvas!=None: self.canvas.get_tk_widget().pack_forget()
 
     def var_creation(self):
+        self.labels=[]
+        self.datas=[]
+        self.visual=[]
         self.var_type_list=StringVar()
         self.var_chart_list=StringVar()
         self.var_txt_s_date=StringVar()
