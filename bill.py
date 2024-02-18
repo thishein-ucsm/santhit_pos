@@ -239,7 +239,7 @@ class bill:
         con=connect_db()
         mycur= con.cursor()
         try:
-            sql="SELECT pid,name,sprice,qty,status FROM product"
+            sql="SELECT pid,name,price,qty,status FROM product"
             mycur.execute(sql)
             rows=mycur.fetchall()
             self.prod_table.delete(*self.prod_table.get_children())
@@ -257,7 +257,7 @@ class bill:
                 messagebox.showerror("Error","Product Name should be filled",parent=self.root)
             else:
                 # "SELECT pid,name,price,qty,status FROM product WHERE name LIKE %s"
-                mycur.execute("SELECT pid,name,sprice,qty,status FROM product where name Like '%"+self.var_search_pname.get()+"%'")
+                mycur.execute("SELECT pid,name,price,qty,status FROM product where name Like '%"+self.var_search_pname.get()+"%'")
                 rows= mycur.fetchall()
 
                 if len(rows)!=0:

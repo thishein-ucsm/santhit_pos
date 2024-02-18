@@ -1,6 +1,8 @@
 import datetime
+from time import ctime
 from tkinter import *
 import json
+import ntplib
 from tkcalendar import Calendar
 
 
@@ -25,9 +27,17 @@ def updateConfig(key_,value_):
     d_=json.dumps(raw)
     with open(file_path, 'w') as file:
         file.write(d_)
+def generate_time():
+    try:
+        ntp_client = ntplib.NTPClient()
+        response = ntp_client.request('pool.ntp.org')
+        a=ctime(response.tx_time)
+        return a
+    except:
+        return False
 
 def openCalendar(root,txt,btn):
-    cal_win=root
+    cal_win= Toplevel(root)
     cal_win.title("Calendar")
     x=btn.winfo_rootx()
     y=btn.winfo_rooty()
@@ -43,7 +53,8 @@ def openCalendar(root,txt,btn):
     cal.pack(side=TOP,fill=X)
     ok = Button(cal_win,command=lambda: setDate(cal_win,txt,cal),text="OK",bg="orange",fg="blue")
     ok.pack(side=BOTTOM,padx=5)
-
+def generate_timestamp(formatter):
+    return str(datetime.datetime.now().strftime(formatter))
 def setDate(a,txt,cal):
     txt.set(cal.get_date())
     a.destroy()
@@ -168,17 +179,7 @@ def delete_wallet(id,dep_dif,wit_dif):
     mycur.execute(sql,val)
     con.commit()
     con.close()
-def set_balance():
-    from database import connect_db
 
-    con=connect_db()
-    mycur=con.cursor()
-    sql="select balance from wallet order by id desc limit 1"
-    mycur.execute(sql)
-    a=mycur.fetchone()
-    if a==None:
-        return 0
-    return a[0]
 def update_balance(id,dep,wit):
     from database import connect_db
 
@@ -205,5 +206,31 @@ def update_balance(id,dep,wit):
         con.commit()
         
     con.close()
-        
+
+# def openCalendar(root_,ent_date):
+#         cal_win=Toplevel(root_)
+#         cal_win.title("Calendar")
+#         x=btn_date_picker.winfo_rootx()
+#         y=btn_date_picker.winfo_rooty()
+#         cal_win.iconphoto(False,iconimg)
+
+#         .cal_win.geometry(f"200x220+{x-100}+{y-250}")
+#         self.cal_win.resizable(0,0)
+#         today=dt.datetime.now()
+#         day_=int(today.strftime("%d"))
+#         month_=int(today.strftime("%m")) 
+#         year_=int(today.strftime("%Y"))
+     
+#         self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
+#         self.cal.pack(side=TOP,fill=X)
+#         ok = Button(self.cal_win,command=lambda :self.setDate(ent_date),text="OK",bg="orange",fg="blue")
+#         ok.pack(side=BOTTOM,padx=5)
+# def setDate(self,ent_date):
+#     ent_date.set(self.cal.get_date())
+#     self.cal_win.destroy()    
+def value_with_commas(val):
+    return f"{val:,}"
+def value_without_commas(val):
+    val=val.replace(",","")
+    return int(val)
 

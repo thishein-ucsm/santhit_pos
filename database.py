@@ -177,18 +177,17 @@ CREATE TABLE IF NOT EXISTS saleorder (
 """
     cur.execute(sql)
     con.commit()
-
     sql="""
-CREATE TABLE IF NOT EXISTS wallet(
-id int NOT NULL AUTO_INCREMENT,
-walid varchar(45) NOT NULL,
-description varchar(200) NOT NULL,
-deposit varchar(50) NOT NULL,
-withdraw varchar(50) NOT NULL,
-balance varchar(50) NOT NULL,
-date varchar(50) NOT NULL,
-PRIMARY KEY(id)
-)
+CREATE TABLE IF NOT EXISTS`wallet` (
+  sr int NOT NULL AUTO_INCREMENT,
+  id varchar(45) NOT NULL,
+  date varchar(100) NOT NULL,
+  description varchar(100) NOT NULL,
+  deposit varchar(45) NOT NULL,
+  withdraw varchar(45) NOT NULL,
+  balance varchar(45) NOT NULL,
+  PRIMARY KEY (sr)
+   )
 """
     cur.execute(sql)
     con.commit()

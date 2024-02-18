@@ -163,13 +163,13 @@ class reporter_:
                     # val=(self.var_buyid.get(),)
                     mycur.execute(sql)
                     row=mycur.fetchall()
-                    
-                    if row is not None:
+                    if not row:
+                        print("No record")
+                    else:
                         for r in row:
                             self.labels.append(r[0])
                             self.datas.append(r[1])
                             self.visual.append(r[0]+"="+str(int(r[1])))
-
                 except Exception as ex:
                     messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
            
