@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-from typing import Any
+# from typing import Any
 from database import connect_db
 from tool_ import *
 from PIL import ImageTk
@@ -64,13 +64,11 @@ class buy:
         self.cmb_supplier.current(0)
         Entry(self.root,textvariable=self.var_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=370,width=180)
         Entry(self.root,textvariable=self.var_exp_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=410,width=180)
-        self.btn_date_picker=Button(self.root,text="\uE1DC",command=None,font=("Segoe MDL2 Assets",14),bg="white")
+        self.btn_date_picker=Button(self.root,text="\uE1DC",command=lambda :openCalendar(self.root,self.var_date,self.btn_date_picker),font=("Segoe MDL2 Assets",14),bg="white")
         self.btn_date_picker.place(x=355,y=367,width=30)
-        self.btn_date_picker.config(command=lambda :self.openCalendar(self.var_date))
 
-        self.btn_exp_picker=Button(self.root,text="\uE1DC",command=None,font=("Segoe MDL2 Assets",14),bg="white")
+        self.btn_exp_picker=Button(self.root,text="\uE1DC",command=lambda :openCalendar(self.root,self.var_exp_date,self.btn_exp_picker),font=("Segoe MDL2 Assets",14),bg="white")
         self.btn_exp_picker.place(x=355,y=407,width=30)
-        self.btn_exp_picker.config(command=lambda :self.openCalendar(self.var_exp_date))
 
         
         btn_save=Button(self.root,text="Save",command=self.add,font=("goudy old style",15),bg="#33bbf9",fg="white",cursor="hand2").place(x=20,y=450,width=90,height=28)
@@ -353,8 +351,6 @@ class buy:
         self.var_description.set(a[1])
         self.var_category.set(a[2])
         self.var_sup.set(a[3])
-
-    
     def var_creation(self):
         self.var_buy_searchby=StringVar()
         self.var_buy_searchtxt=StringVar()
@@ -397,27 +393,7 @@ class buy:
                     messagebox.showinfo("Information","No record found on system",parent=self.root)
         except Exception as ex:
             messagebox.showerror("Error",str(ex),parent=self.root)
-    def openCalendar(self,date_type):
-        self.cal_win=Toplevel(self.root)
-        self.cal_win.title("Calendar")
-        x=self.btn_date_picker.winfo_rootx()
-        y=self.btn_date_picker.winfo_rooty()
-        self.cal_win.iconphoto(False,self.iconimg)
-
-        self.cal_win.geometry(f"200x220+{x-100}+{y-250}")
-        self.cal_win.resizable(0,0)
-        today=dt.datetime.now()
-        day_=int(today.strftime("%d"))
-        month_=int(today.strftime("%m")) 
-        year_=int(today.strftime("%Y"))
-     
-        self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
-        self.cal.pack(side=TOP,fill=X)
-        ok = Button(self.cal_win,command=lambda :self.setDate(date_type),text="OK",bg="orange",fg="blue")
-        ok.pack(side=BOTTOM,padx=5)
-    def setDate(self,date_btn):
-        date_btn.set(self.cal.get_date())
-        self.cal_win.destroy()
+    
     def comboData(self):
         conn=connect_db()
         sql_="select pid,name from product"
@@ -431,9 +407,6 @@ class buy:
         
         # print(self.list_combo)
     def popCombo(self,event):
-       
-        # temp=self.var_pid.get()
-        # print(temp)
         id_=self.extractID(self.var_pid)
         self.var_pid.set(id_)
         con=connect_db()
@@ -447,7 +420,6 @@ class buy:
             self.var_description.set(data[1])
             self.var_category.set(data[2])
             self.var_sup.set(data[3])
-
     def extractID(self,cmb):
         temp=cmb.get()
         temp=temp.split(":")
