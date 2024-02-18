@@ -1,4 +1,9 @@
-update1.0.2
--fixed report when no result from database
--create wallet page with add,update,delete functions
--tool_ ->current time function, remove wallet functions 
+update1.0.3
+-ims quick actions and added shortcut keys
+-product wrong index with status,remove cost column 
+-database remove product table's sprice column
+-remove wallet functions,fixed calendar widget 
+-fixed buy page connection problem
+-change buyid to by
+-visible wallet's functions to visible from other class
+-bill filter product's status

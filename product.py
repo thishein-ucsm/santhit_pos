@@ -33,8 +33,8 @@ class product:
         btn_search=Button(searchFrame,command=self.search,text="Search",font=("goudy old style",15),bg="#4caf50",fg="white",cursor="hand2").place(x=410,y=3,width=150,height=30)
  #===================Employee Details==============================
         title_product= Label(self.root,text="Product Details",bg="#0f4d7d",fg="white",font=("goudy old style",15,"bold")).place(x=5,y=10,width=1090)
-        lbl_list=["PID:","Name:","Description:","Quantity:","Price","SellingPrice","Status","Category:","Supplier:","CreatedTime:","Remark:"]
-        ent_list=[self.var_pid,self.var_name,self.var_description,self.var_qty,self.var_price,self.var_sellingprice]
+        lbl_list=["PID:","Name:","Description:","Quantity:","Price","Status","Category:","Supplier:","CreatedTime:","Remark:"]
+        ent_list=[self.var_pid,self.var_name,self.var_description,self.var_qty,self.var_price]
 
         y=50
         for i in lbl_list:
@@ -47,18 +47,18 @@ class product:
         # print(y)
         # Label(self.root,text="Status",bg="white",font=("goudy old style",15,"bold")).place(x=50,y=210)    
         self.cmb_status=ttk.Combobox(self.root,textvariable=self.var_status,values=("Select","Active","Inactive","Out of Stock"),state='readonly',justify=CENTER,font=("goudy old style",15))
-        self.cmb_status.place(x=170,y=278,width=180)
+        self.cmb_status.place(x=170,y=240,width=180)
         self.cmb_status.current(0)
         self.cmb_cat=ttk.Combobox(self.root,textvariable=self.var_category,values=("Select",),state='readonly',justify=CENTER,font=("goudy old style",15))
-        self.cmb_cat.place(x=170,y=316,width=180)
+        self.cmb_cat.place(x=170,y=278,width=180)
         self.cmb_cat.current(0)
         self.cmb_sup=ttk.Combobox(self.root,textvariable=self.var_supplier,values=("Select",),state='readonly',justify=CENTER,font=("goudy old style",15))
-        self.cmb_sup.place(x=170,y=354,width=180)
+        self.cmb_sup.place(x=170,y=316,width=180)
         self.cmb_sup.current(0)
-        txt_ctime= Entry(self.root,textvariable=self.var_created_time,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=392,width=180)
-        txt_remark= Entry(self.root,textvariable=self.var_remark,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=430,width=180)
+        txt_ctime= Entry(self.root,textvariable=self.var_created_time,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=355,width=180)
+        txt_remark= Entry(self.root,textvariable=self.var_remark,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=392,width=180)
         self.btn_date_picker=Button(self.root,text="\uE1DC",command=lambda:openCalendar(self.root,self.var_created_time,self.btn_date_picker),font=("Segoe MDL2 Assets",14),bg="white")
-        self.btn_date_picker.place(x=355,y=389,width=30)
+        self.btn_date_picker.place(x=355,y=355,width=30)
         ##================Button Frame===========================
         btn_save=Button(self.root,text="Save",command=self.add,font=("goudy old style",15),bg="#33bbf9",fg="white",cursor="hand2").place(x=20,y=460,width=90,height=28)
         btn_update=Button(self.root,text="Update",command=self.update,font=("goudy old style",15),bg="#ff5722",fg="white",cursor="hand2").place(x=115,y=460,width=90,height=28)
@@ -70,7 +70,7 @@ class product:
         emp_frame.place(x=400,y=110,height=390,width=700)
         scrolly=Scrollbar(emp_frame,orient=VERTICAL)
         scrollx=Scrollbar(emp_frame,orient=HORIZONTAL)
-        self.pro_table=ttk.Treeview(emp_frame,columns=("1","2","3","4","5","6","7","8","9","10","11","12"),yscrollcommand=scrolly.set,xscrollcommand=scrollx.set)
+        self.pro_table=ttk.Treeview(emp_frame,columns=("1","2","3","4","5","7","8","9","10","11","12"),yscrollcommand=scrolly.set,xscrollcommand=scrollx.set)
         scrollx.pack(side=BOTTOM,fill=X)
         scrolly.pack(side=RIGHT,fill=Y)
         scrollx.config(command=self.pro_table.xview)
@@ -80,7 +80,6 @@ class product:
         self.pro_table.heading("3",text="Name")
         self.pro_table.heading("4",text="Description")
         self.pro_table.heading("5",text="Qty")
-        self.pro_table.heading("6",text="Cost")
         self.pro_table.heading("7",text="SellPrice")
         self.pro_table.heading("8",text="Status")
         self.pro_table.heading("9",text="Category")
@@ -94,7 +93,6 @@ class product:
         self.pro_table.column("3",width=100)
         self.pro_table.column("4",width=100)
         self.pro_table.column("5",width=50)
-        self.pro_table.column("6",width=50)
         self.pro_table.column("7",width=50)
         self.pro_table.column("8",width=70)
         self.pro_table.column("9",width=100)
@@ -141,12 +139,12 @@ class product:
             self.var_description.set(row[3])
             self.var_qty.set(row[4])
             self.var_price.set(row[5])
-            self.var_sellingprice.set(row[6])
-            self.var_status.set(row[7])
-            self.var_category.set(str(row[8]))
-            self.var_supplier.set(row[9])
-            self.var_created_time.set(row[10])
-            self.var_remark.set(row[11])
+            # self.var_sellingprice.set(row[6])
+            self.var_status.set(row[6])
+            self.var_category.set(str(row[7]))
+            self.var_supplier.set(row[8])
+            self.var_created_time.set(row[9])
+            self.var_remark.set(row[10])
 
 
         except IndexError as ex:
@@ -182,10 +180,10 @@ class product:
                     messagebox.showerror("Error","Duplicate product\'s id",parent=self.root)
                     
                 else:
-                    sql="INSERT INTO product(pid,name,description,qty,price,sprice,status,category,supplier,created_time,remark) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                    sql="INSERT INTO product(pid,name,description,qty,price,status,category,supplier,created_time,remark) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
                     val=(self.var_pid.get(),self.var_name.get(),
                          self.var_description.get(),self.var_qty.get(),
-                         self.var_price.get(),self.var_sellingprice.get(),self.var_status.get(),
+                         self.var_price.get(),self.var_status.get(),
                          self.var_category.get(),self.var_supplier.get(),
                          self.var_created_time.get(),self.var_remark.get()
                          )
@@ -221,9 +219,9 @@ class product:
                     messagebox.showerror("Error","Invalid Product\'s ID",parent=self.root)
                 else:
                     # "eid","name","nrc","gen","cont","dob","type","sal","addr"
-                    sql="UPDATE product SET name=%s,description=%s,qty=%s,price=%s,sprice=%s,status=%s,category=%s,supplier=%s,created_time=%s,remark=%s where pid=%s"
+                    sql="UPDATE product SET name=%s,description=%s,qty=%s,price=%s,status=%s,category=%s,supplier=%s,created_time=%s,remark=%s where pid=%s"
                     val=(self.var_name.get(),self.var_description.get(),
-                         self.var_qty.get(),self.var_price.get(),self.var_sellingprice.get(),
+                         self.var_qty.get(),self.var_price.get(),
                          self.var_status.get(),self.var_category.get(),
                          self.var_supplier.get(),self.var_created_time.get(),
                          self.var_remark.get(),
@@ -275,7 +273,6 @@ class product:
         self.var_description.set("")
         self.var_qty.set("")
         self.var_price.set("")
-        self.var_sellingprice.set("")
         self.var_status.set("Select")
         self.var_category.set("Select")
         self.var_supplier.set("Select")
@@ -312,35 +309,12 @@ class product:
         self.var_description=StringVar()
         self.var_qty=StringVar()
         self.var_price=StringVar()
-        self.var_sellingprice=StringVar()
-
         self.var_status=StringVar()
-
         self.var_category=StringVar()
         self.var_supplier=StringVar()
         self.var_created_time=StringVar()
         self.var_remark=StringVar()
-    # def openCalendar(self):
-    #     self.cal_win=Toplevel(self.root)
-    #     self.cal_win.title("Calendar")
-    #     x=self.btn_date_picker.winfo_rootx()
-    #     y=self.btn_date_picker.winfo_rooty()
-    #     self.cal_win.iconphoto(False,self.iconimg)
-
-    #     self.cal_win.geometry(f"200x220+{x-100}+{y-250}")
-    #     self.cal_win.resizable(0,0)
-    #     today=dt.datetime.now()
-    #     day_=int(today.strftime("%d"))
-    #     month_=int(today.strftime("%m")) 
-    #     year_=int(today.strftime("%Y"))
-     
-    #     self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
-    #     self.cal.pack(side=TOP,fill=X)
-    #     ok = Button(self.cal_win,command=self.setDate,text="OK",bg="orange",fg="blue")
-    #     ok.pack(side=BOTTOM,padx=5)
-    # def setDate(self):
-    #     self.var_created_time.set(self.cal.get_date())
-    #     self.cal_win.destroy()
+    
 if __name__=="__main__":
     root= Tk()
     app= product(root)

@@ -8,6 +8,7 @@ from tool_ import *
 from PIL import ImageTk
 import datetime as dt
 import os
+from wallet import wallet
 from tkcalendar import Calendar
 
 class buy:
@@ -51,8 +52,7 @@ class buy:
         Entry(self.root,textvariable=self.var_description,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=170,width=180)
         Button(self.root,text="\u21BA",command=lambda:self.var_buyid.set(generate_id("buy","buyid"))).place(x=355,y=90)
         self.cmb_categroy=ttk.Combobox(self.root,textvariable=self.var_category,values=("Select"),state="readonly",justify=CENTER,font=("goudy old style",15))
-        # self.cmb_categroy.place(x=170,y=210,width=180)
-        # self.cmb_categroy.current(0)
+
         
         Entry(self.root,textvariable=self.var_cost,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=210,width=180)
 
@@ -86,8 +86,8 @@ class buy:
         scrollx.config(command=self.pro_table.xview)
         scrolly.config(command=self.pro_table.yview)
         self.pro_table.heading("1",text="Sr.")
-        self.pro_table.heading("2",text="ProID")
-        self.pro_table.heading("3",text="BuyID")
+        self.pro_table.heading("2",text="PID.")
+        self.pro_table.heading("3",text="BID.")
 
         self.pro_table.heading("4",text="Name")
         self.pro_table.heading("5",text="Description")
@@ -119,7 +119,6 @@ class buy:
         update_combo("product","pid",self.cmb_pid)
         update_combo("category","name",self.cmb_categroy)
         update_combo("supplier","name",self.cmb_supplier)
-        # self.cmb_pid.bind("<<ComboboxSelected>>",lambda a:self.cmb_select(a,self.var_pid.get()))
         self.show()
         self.comboData()
     def getdata(self,ev):
@@ -186,19 +185,19 @@ class buy:
                             con.close()
                             print("ok3")
                             withdraw=int(self.var_cost.get())*int(self.var_qty.get())
-                            save_to_wallet(self.var_buyid.get(),"0",withdraw,self.var_date.get())
+                            wallet.save_wallet(self.var_buyid.get(),self.var_description.get(),0,withdraw,self.var_date.get())
                             self.clear()
                             messagebox.showinfo("Message","Successfully inserted into Database!",parent=self.root)
 
                             self.show()
                             con.close() 
                         else:
-                            messagebox.showerror("Error","You can only put digits in amount entries.",parent=self.root)
+                            messagebox.showerror("Error1@buy","You can only put digits in amount entries.",parent=self.root)
                     else:
-                        messagebox.showerror("Error","You are missing some data!",parent=self.root)
+                        messagebox.showerror("Error2@buy","You are missing some data!",parent=self.root)
 
         except Exception as ex:
-            messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
+            messagebox.showerror("Error3@buy",f"Error due to : {(ex)}",parent=self.root)
     def show(self):
         con=connect_db()
         mycur= con.cursor()
@@ -215,9 +214,6 @@ class buy:
     def update(self):
         con=connect_db() #module from database.py
         mycur= con.cursor()
- 
-        # calling create_emp from database.py
-        # create_emp()
         try:
             if self.var_buyid.get()=="":
                 messagebox.showerror("Error","Buy\'s ID missing!",parent=self.root)
@@ -243,6 +239,7 @@ class buy:
                             a=mycur.fetchone()
                             b=int(self.var_qty.get())
                             c=int(a[0])-b
+                            con.commit()
                             sql="select qty from product where pid=%s"
                             val=(self.var_pid.get(),)
                             mycur.execute(sql,val)
@@ -259,35 +256,32 @@ class buy:
                             val=(e,self.var_pid.get(),)
                             mycur.execute(sql,val)
                             con.commit()
-                            con.close()
-                            # print(self.var_buyid.get())
-                            con=connect_db()
-                            mycur=con.cursor()
-                            defg="select withdraw from wallet where description=%s"
+
+                            defg="select withdraw from wallet where id=%s"
                             abcd=(self.var_buyid.get(),)
                             mycur.execute(defg,abcd)
-                            org_cost=mycur.fetchone()
-                            # print(org_cost)
-                            new_cost=int(self.var_cost.get())*int(self.var_qty.get())
-                            withdraw_dif=int(org_cost[0])-new_cost
-                            # print(int(org_cost[0]),new_cost)
-                            
-                            # update_wallet(self.var_buyid.get(),0,withdraw,self.var_date.get(),0,new_cost)
-                            # print(withdraw_dif)
-                            update_wallet(self.var_buyid.get(),0,new_cost,self.var_date.get(),0,withdraw_dif)
+                            result=mycur.fetchone()
+                            con.commit()
+                            old_cost=0
+                            new_cost=0
+                            if result:
+                                old_cost=int(result[0])  
+                                new_cost=int(self.var_cost.get())*int(self.var_qty.get())
+                                withdraw_dif=old_cost-new_cost
+                                
+                                print("new cost",new_cost)
+                                wallet.update_wallet(self.var_buyid.get(),self.var_description.get(),0,new_cost,self.var_date.get())
 
-                            self.clear()
-                            messagebox.showinfo("Message","Successfully inserted into Database!",parent=self.root)
+                                self.clear()
+                                messagebox.showinfo("Message","Successfully inserted into Database!",parent=self.root)
 
-                            self.show()
-                            con.close() 
+                                self.show()
                         else:
                             messagebox.showerror("Error","You can only put digits in amount entries.",parent=self.root)
-
-                    
+            con.close()
 
         except Exception as ex:
-            messagebox.showerror("Error3",f"Error due to : {str(ex)}",parent=self.root)
+            messagebox.showerror("Error3@buy",f"Error due to : {str(ex)}",parent=self.root)
     def delete(self):
         con=connect_db() #module from database.py
         mycur=con.cursor()

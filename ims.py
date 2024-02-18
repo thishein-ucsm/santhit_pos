@@ -16,6 +16,7 @@ import datetime as dt
 from PIL import ImageTk,Image
 from tool_ import *
 from authentication import *
+from wallet import wallet
 class IMS:
     def __init__(self,root,user="guest") -> None:
         self.root=root
@@ -31,13 +32,6 @@ class IMS:
         self.root.iconphoto(False,self.iconimg)
         image_ = path.abspath(path.join(self.ROOT_DIR, 'logo1.jpg'))
 
-        
-        # image_=ImageTk.PhotoImage(file=f'{self.ROOT_DIR}\\logo1.jpg')
-
-        # self.animimg=Image.open(f'{self.ROOT_DIR}parts\\1.png')
-        # self.animimg=self.animimg.resize((350,250),Image.LANCZOS)
-        # self.sideimg=ImageTk.PhotoImage(self.animimg)
-
         self.sideimg=ImageTk.PhotoImage(file=image_)
         self.title=Label(self.root,image=self.sideimg,text="SanThit - Inventory Management System ",compound=LEFT,font=("times new roman",40,"bold"),bg="#010c48",fg="white",anchor=W,padx=20).place(x=0,y=0,relwidth=1,height=70)
         self.lbl_clock=Label(self.root,text=f"Welcome to Inventory Management System\t\tDate: DD-MM-YYYY\t\t Time: HH:MM:SS\t\t Auth: {self.user.capitalize()}",font=("times new roman",15,"bold"),bg="#4D636d",fg="white")
@@ -45,7 +39,6 @@ class IMS:
         self.btn_logout=Button(self.root,text="Log Out",command=self.logout,font=("times new roman",15,"bold"),bg="#4caf50",fg="white",anchor=W,padx=20,cursor="hand2").place(x=1200,y=10,width=120,height=50)
         
         self.showMenu()
-        self.setQuickActions()
 
                 
         self.lbl_employee=Label(self.root,text="Total Employees\n[ 0 ]",bg="#33bbf9",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
@@ -54,20 +47,21 @@ class IMS:
         self.lbl_supplier.place(x=650,y=120,width=300,height=150)
         self.lbl_customer=Label(self.root,text="Total Customers\n[ 0 ]",bg="#009688",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
         self.lbl_customer.place(x=1000,y=120,width=300,height=150)
-        self.lbl_product1=Label(self.root,text="Total Products\n[ 0 ]",bg="#607d8b",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
-        self.lbl_product1.place(x=300,y=300,width=300,height=150)
-        self.lbl_sale1=Label(self.root,text="Total Sales\n[ 0 ]",bg="#ffc107",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
-        self.lbl_sale1.place(x=650,y=300,width=300,height=150)
+        self.lbl_product=Label(self.root,text="Total Products\n[ 0 ]",bg="#607d8b",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
+        self.lbl_product.place(x=300,y=300,width=300,height=150)
+        self.lbl_sale=Label(self.root,text="Total Sales\n[ 0 ]",bg="#ffc107",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
+        self.lbl_sale.place(x=650,y=300,width=300,height=150)
         self.lbl_belowqty=Label(self.root,text="[ 0 ] items <10",bg="#ff5555",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
         self.lbl_belowqty.place(x=1000,y=300,width=300,height=150)
         self.lbl_category=Label(self.root,text="Total Categories\n[ 0 ]",bg="#627d1c",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
         self.lbl_category.place(x=300,y=480,width=300,height=150)
-        self.lbl_sale1=Label(self.root,text="Total Credit Sales\n[ 0 ]",bg="#127e7f",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
-        self.lbl_sale1.place(x=650,y=480,width=300,height=150)
+        self.lbl_crdsale=Label(self.root,text="Total Credit Sales\n[ 0 ]",bg="#127e7f",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
+        self.lbl_crdsale.place(x=650,y=480,width=300,height=150)
         self.lbl_belowqty=Label(self.root,text="[ 0 ] items <10",bg="#6a7efa",fg="white",bd=5,relief=RIDGE,font=("goudy old style",20,"bold"))
         self.lbl_belowqty.place(x=1000,y=480,width=300,height=150)
-        self.update_time()
+        self.clock()
         create_tables()
+        self.setQuickActions()
 
         self.update_data()
 
@@ -77,29 +71,40 @@ class IMS:
         self.update_total("supplier",self.lbl_supplier)
         self.update_total("customer",self.lbl_customer)
         self.update_total("category",self.lbl_category)
-        self.update_total("product",self.lbl_product1)
-        self.lbl_category.after(3000,self.update_data)
+        self.update_total("product",self.lbl_product)
+        self.update_total_sale("saleorder",self.lbl_sale)
+
+        self.lbl_category.after(5000,self.update_data)
     def update_total(self,name,lbl):
         conn=connect_db()
         mycur=conn.cursor()
-        mycur.execute(f"SELECT name FROM {name}")
+        mycur.execute(f"SELECT * FROM {name}")
         mycur.fetchall()
         if mycur.rowcount > 0:
             lbl.config(text=f"Total {name.capitalize()}\n[ {mycur.rowcount} ]")
-    def update_time(self):
+        conn.close()
+    def update_total_sale(self,name,lbl):
+        conn=connect_db()
+        mycur=conn.cursor()
+        mycur.execute(f"SELECT voucherid,sum(total) FROM {name} group by voucherid")
+        mycur.fetchall()
+        if mycur.rowcount > 0:
+            lbl.config(text=f"Total {name.capitalize()}\n[ {mycur.rowcount} ]")
+        conn.close()
+    def clock(self):
         today=dt.datetime.now()
         date_=today.strftime("%d-%b-%Y") 
         time_=today.strftime("%H:%M:%S")
         self.lbl_clock.config(text=f"Welcome to Inventory Management System\t\tDate: {date_}\t\t Time: {time_}\t\tAuth: {self.user.capitalize()}")
-        self.lbl_clock.after(1000,self.update_time)
+        self.lbl_clock.after(1000,self.clock)
     def showMenu(self):
         
         self.LeftMenu= Frame(self.root,bd=3,relief=RIDGE,bg="#ff0011")
-        self.LeftMenu.place(x=2,y=102,width=185,height=575)
+        self.LeftMenu.place(x=2,y=102,width=190,height=575)
         self.lbl_menu=Label(self.LeftMenu,text="Menu",font=("Elephant",20,"bold"),bg="#009688",fg="#ffc107").pack(side=TOP,fill=X)
 
         self.canvas=Canvas(self.LeftMenu,bg="yellow")
-        self.canvas.pack(side=LEFT,fill=BOTH,expand=True)
+        self.canvas.pack(side=TOP,fill=BOTH,expand=True)
         scrollbar = tk.Scrollbar(self.canvas, orient="vertical", command=self.canvas.yview)
         scrollbar.pack(side="right", fill="y")
         self.canvas.configure(yscrollcommand=scrollbar.set)
@@ -107,36 +112,35 @@ class IMS:
         self.canvas.create_window((0, 0), window=self.btn_frame, anchor="nw")
 
 
-        self.btn_buy=Button(self.btn_frame,text="Buy",command=lambda : self.openPage(self.btn_buy,self.buyPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_buy=Button(self.btn_frame,text="Buy\tCtrl+b",command=lambda : self.openPage(self.btn_buy,self.buyPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_buy.pack(side=TOP,fill=X)
-        self.btn_sell=Button(self.btn_frame,text="Sell",command=lambda : self.openPage(self.btn_sell,self.billPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_sell=Button(self.btn_frame,text="Sell\tCtrl+s",command=lambda : self.openPage(self.btn_sell,self.billPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_sell.pack(side=TOP,fill=X)
-        self.btn_product=Button(self.btn_frame,text="Product",command=lambda: self.openPage(self.btn_product,self.productPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_product=Button(self.btn_frame,text="Product\tCtrl+p",command=lambda: self.openPage(self.btn_product,self.productPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_product.pack(side=TOP,fill=X)
-        # self.btn_build=Button(self.btn_frame,text="Build",command=lambda: self.openPage(self.btn_build,self.buildPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
-        # self.btn_build.pack(side=TOP,fill=X)
-        self.btn_category=Button(self.btn_frame,text="Category",command=lambda: self.openPage(self.btn_category,self.categoryPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+       
+        self.btn_category=Button(self.btn_frame,text="Category\tCtrl+a",command=lambda: self.openPage(self.btn_category,self.categoryPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_category.pack(side=TOP,fill=X)
         self.btn_receivable=Button(self.btn_frame,text="Receivable",font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_receivable.pack(side=TOP,fill=X)
 
-        self.btn_wallet=Button(self.btn_frame,text="Wallet",font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_wallet=Button(self.btn_frame,text="Wallet\tCtrl+w",command=lambda: self.openPage(self.btn_wallet,self.walletPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_wallet.pack(side=TOP,fill=X)
         
-        self.btn_employee=Button(self.btn_frame,text="Employee",command=lambda: self.openPage(self.btn_employee,self.employeePage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_employee=Button(self.btn_frame,text="Employee Ctrl+e",command=lambda: self.openPage(self.btn_employee,self.employeePage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_employee.pack(side=TOP,fill=X)
         # self.btn_employee.bind('<Enter>',lambda event: self.btn_employee.config(bg="Lightblue"))
 
-        self.btn_supplier=Button(self.btn_frame,text="Supplier",command=lambda: self.openPage(self.btn_supplier,self.supplierPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_supplier=Button(self.btn_frame,text="Supplier\tCtrl+u",command=lambda: self.openPage(self.btn_supplier,self.supplierPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_supplier.pack(side=TOP,fill=X)
-        self.btn_customer=Button(self.btn_frame,text="Customer",command=lambda: self.openPage(self.btn_customer,self.customerPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_customer=Button(self.btn_frame,text="Customer Ctrl+m",command=lambda: self.openPage(self.btn_customer,self.customerPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_customer.pack(side=TOP,fill=X)
-        self.btn_saleslip=Button(self.btn_frame,text="Slips",command=lambda: self.openPage(self.btn_saleslip,self.slipPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_saleslip=Button(self.btn_frame,text="Slips\tCtrl+l",command=lambda: self.openPage(self.btn_saleslip,self.slipPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_saleslip.pack(side=TOP,fill=X)
         
-        self.btn_auth=Button(self.btn_frame,text="Authentication",command=lambda: self.openPage(self.btn_auth,self.authenticationPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_auth=Button(self.btn_frame,text="Authentication Ctrl+i",command=lambda: self.openPage(self.btn_auth,self.authenticationPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_auth.pack(side=TOP,fill=X)
-        self.btn_report=Button(self.btn_frame,text="Report",command=lambda:self.openPage(self.btn_report,self.reportPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_report=Button(self.btn_frame,text="Report\tCtrl+r",command=lambda:self.openPage(self.btn_report,self.reportPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_report.pack(side=TOP,fill=X)
         self.btn_backup=Button(self.btn_frame,text="Backup&Restore",command=lambda:self.openPage(self.btn_backup,self.dbPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_backup.pack(side=TOP,fill=X)
@@ -152,15 +156,19 @@ class IMS:
     def on_mousewheel(self,event):
         self.canvas.yview_scroll(-1 * (event.delta // 120), "units")
     def setQuickActions(self):
-        self.root.bind('<Control-x>',self.closeProgram)
-        self.root.bind('<Control-1>',self.showProdPage)
-        self.root.bind('<Control-2>',self.showProdPage)
-        self.root.bind('<Control-3>',self.showProdPage)
-        self.root.bind('<Control-4>',self.showCatPage)
-        self.root.bind('<Control-5>',self.showCatPage)
-        self.root.bind('<Control-6>',self.showCatPage)
-        self.root.bind('<Control-7>',self.showEmpPage)
-        self.root.bind('<Control-8>',self.showSupPage)
+        self.root.bind('<Control-q>',self.closeProgram)
+        self.root.bind('<Control-b>',self.showBuyPage)
+        self.root.bind('<Control-s>',self.showSalePage)
+        self.root.bind('<Control-p>',self.showProdPage)
+        self.root.bind('<Control-a>',self.showCatPage)
+        # self.root.bind('<Control-5>',self.showCatPage)
+        self.root.bind('<Control-w>',self.showWalletPage)
+        self.root.bind('<Control-e>',self.showEmpPage)
+        self.root.bind('<Control-u>',self.showSupPage)
+    def showBuyPage(self,event):
+        self.openPage(self.btn_buy,self.buyPage)
+    def showSalePage(self,event):
+        self.openPage(self.btn_sell,self.billPage)
     def showEmpPage(self,event):
         self.openPage(self.btn_employee,self.employeePage)
     def showSupPage(self,event):
@@ -171,6 +179,8 @@ class IMS:
         self.openPage(self.btn_customer,self.customerPage)
     def showCatPage(self,event):
         self.openPage(self.btn_category,self.categoryPage)
+    def showWalletPage(self,event):
+        self.openPage(self.btn_wallet,self.walletPage)
     def openPage(self,btn,page):
         if self.new_win!=None: self.new_win.destroy()
         self.inactive_btn()
@@ -195,6 +205,8 @@ class IMS:
         self.new_obj= category(self.new_win)
     def productPage(self):
         self.new_obj= product(self.new_win)
+    def walletPage(self):
+        self.new_obj=wallet(self.new_win)
     def authenticationPage(self):
         self.new_obj= authentication(self.new_win)
     def reportPage(self):

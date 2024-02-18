@@ -116,118 +116,76 @@ def generate_id(table,idname):
     mycur.execute(sql)
     row=mycur.fetchone()
     if row==None:
-        cur_id=idname+"-"+"0000"
+        cur_id="by","-"+"0000"
     else:
         cur_id=row[0]
     a=cur_id.split("-")
-    b=int(a[1])
-    c=str(b+1)
+    index_=int(a[1])+1
+    c=str(index_)
 
     if len(c)<4:
-        temp=a[0]+"-"+("0"*(4-len(c))+c)
+        temp="by"+"-"+("0"*(4-len(c))+c)
     else:
-        temp=a[0]+"-"+c
+        temp="by"+"-"+c
     con.close()
     return temp
   
-def save_to_wallet(id,dep,wit,date):
-    from database import connect_db
-    des=id
-    deposit=dep
-    withdraw=wit
-    date_=date
-    walid=generate_id("wallet","walid")
-    con=connect_db()
-    mycur= con.cursor()
-    sql=f"select balance from wallet order by id desc limit 1"
-    mycur.execute(sql)
-    row=mycur.fetchone()
-    if row==None:
-        balance=0+int(deposit)-int(withdraw)
-    else:
-        balance=int(row[0])+int(deposit)-int(withdraw)
-    sql="insert into wallet(walid,description,deposit,withdraw,balance,date) values (%s,%s,%s,%s,%s,%s)"
-    val=(walid,des,deposit,withdraw,balance,date_)
-    mycur.execute(sql,val)
-    con.commit()
-    con.close()
-def update_wallet(id,dep,wit,date,dep_dif,wit_dif):
-    from database import connect_db
-    des=id
-    deposit=dep
-    withdraw=wit
-    date_=date
-    dep_dif_=dep_dif
-    wit_dif_=wit_dif
-    con=connect_db()
-    mycur=con.cursor()
-    sql="update wallet set deposit=%s,withdraw=%s,date=%s where description=%s"
-    val=(deposit,withdraw,date_,des)
-    mycur.execute(sql,val)
-    con.commit()
-    con.close()
-    update_balance(des,dep_dif_,wit_dif_)
-def delete_wallet(id,dep_dif,wit_dif):
-    from database import connect_db
 
-    des=id
-    con=connect_db()
-    mycur=con.cursor()
-    update_balance(des,dep_dif,wit_dif)
-    sql="delete from wallet where description=%s"
-    val=(des,)
-    mycur.execute(sql,val)
-    con.commit()
-    con.close()
+# def update_wallet(id,dep,wit,date,dep_dif,wit_dif):
+#     from database import connect_db
+#     des=id
+#     deposit=dep
+#     withdraw=wit
+#     date_=date
+#     dep_dif_=dep_dif
+#     wit_dif_=wit_dif
+#     con=connect_db()
+#     mycur=con.cursor()
+#     sql="update wallet set deposit=%s,withdraw=%s,date=%s where description=%s"
+#     val=(deposit,withdraw,date_,des)
+#     mycur.execute(sql,val)
+#     con.commit()
+#     con.close()
+#     update_balance(des,dep_dif_,wit_dif_)
+# def delete_wallet(id,dep_dif,wit_dif):
+#     from database import connect_db
 
-def update_balance(id,dep,wit):
-    from database import connect_db
+#     des=id
+#     con=connect_db()
+#     mycur=con.cursor()
+#     update_balance(des,dep_dif,wit_dif)
+#     sql="delete from wallet where description=%s"
+#     val=(des,)
+#     mycur.execute(sql,val)
+#     con.commit()
+#     con.close()
 
-    des=id
-    deposit=dep
-    withdraw=wit
-    con=connect_db()
-    mycur=con.cursor()
-    sql="select id from wallet where description=%s"
-    val=(des,)
-    mycur.execute(sql,val)
-    cur_id=mycur.fetchone()
-    sql="select id,balance from wallet where id>=%s"
-    val=(cur_id[0],)
-    mycur.execute(sql,val)
-    a=mycur.fetchall()
-    for i in a:
-        cur_walid=i[0]
-        cur_bal=i[1]
-        new_bal=int(cur_bal)-int(deposit)+int(withdraw)
-        sql="update wallet set balance=%s where id=%s"
-        val=(new_bal,cur_walid)
-        mycur.execute(sql,val)
-        con.commit()
+# def update_balance(id,dep,wit):
+#     from database import connect_db
+
+#     des=id
+#     deposit=dep
+#     withdraw=wit
+#     con=connect_db()
+#     mycur=con.cursor()
+#     sql="select id from wallet where description=%s"
+#     val=(des,)
+#     mycur.execute(sql,val)
+#     cur_id=mycur.fetchone()
+#     sql="select id,balance from wallet where id>=%s"
+#     val=(cur_id[0],)
+#     mycur.execute(sql,val)
+#     a=mycur.fetchall()
+#     for i in a:
+#         cur_walid=i[0]
+#         cur_bal=i[1]
+#         new_bal=int(cur_bal)-int(deposit)+int(withdraw)
+#         sql="update wallet set balance=%s where id=%s"
+#         val=(new_bal,cur_walid)
+#         mycur.execute(sql,val)
+#         con.commit()
         
-    con.close()
-
-# def openCalendar(root_,ent_date):
-#         cal_win=Toplevel(root_)
-#         cal_win.title("Calendar")
-#         x=btn_date_picker.winfo_rootx()
-#         y=btn_date_picker.winfo_rooty()
-#         cal_win.iconphoto(False,iconimg)
-
-#         .cal_win.geometry(f"200x220+{x-100}+{y-250}")
-#         self.cal_win.resizable(0,0)
-#         today=dt.datetime.now()
-#         day_=int(today.strftime("%d"))
-#         month_=int(today.strftime("%m")) 
-#         year_=int(today.strftime("%Y"))
-     
-#         self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
-#         self.cal.pack(side=TOP,fill=X)
-#         ok = Button(self.cal_win,command=lambda :self.setDate(ent_date),text="OK",bg="orange",fg="blue")
-#         ok.pack(side=BOTTOM,padx=5)
-# def setDate(self,ent_date):
-#     ent_date.set(self.cal.get_date())
-#     self.cal_win.destroy()    
+#     con.close()
 def value_with_commas(val):
     return f"{val:,}"
 def value_without_commas(val):

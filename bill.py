@@ -239,7 +239,7 @@ class bill:
         con=connect_db()
         mycur= con.cursor()
         try:
-            sql="SELECT pid,name,price,qty,status FROM product"
+            sql="SELECT pid,name,price,qty,status FROM product where status='active' or status='Out of Stock'"
             mycur.execute(sql)
             rows=mycur.fetchall()
             self.prod_table.delete(*self.prod_table.get_children())
@@ -368,19 +368,14 @@ class bill:
         mycur= con.cursor()
  
         try:
-            print(self.cart_list)
             for so in self.cart_list:
                 sql="INSERT INTO saleorder(voucherid,cid,cname,pid,qty,total,date) VALUES (%s,%s,%s,%s,%s,%s,%s)"
                 val1=(str(self.invoice),"custID","CustName",so[0],so[3],so[2],self.date_)
 
                 sql_req_qty="select qty from product where pid=%s"
                 val2=(so[0],)
-                print(val2)
 
                 sql_qty_upd="UPDATE product set qty=%s where pid=%s"
-              
-
-           
                 if isStatusOK(val1):
                     mycur.execute(sql,val1)
                     con.commit()
@@ -391,6 +386,7 @@ class bill:
                 if isStatusOK(val2):
                     mycur.execute(sql_req_qty,val2)
                     total_qty=mycur.fetchone()
+                    con.commit()
                     sold_qty=so[3]
                     remain_qty=int(total_qty[0])-int(sold_qty)
                     val3=(remain_qty,so[0])
