@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from database import connect_db
-from tool_ import isStatusOK,loadConfig
+from tool_ import isStatusOK,loadConfig, openCalendar
 from PIL import ImageTk
 import os
 import datetime as dt
@@ -57,7 +57,7 @@ class product:
         self.cmb_sup.current(0)
         txt_ctime= Entry(self.root,textvariable=self.var_created_time,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=392,width=180)
         txt_remark= Entry(self.root,textvariable=self.var_remark,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=430,width=180)
-        self.btn_date_picker=Button(self.root,text="\uE1DC",command=self.openCalendar,font=("Segoe MDL2 Assets",14),bg="white")
+        self.btn_date_picker=Button(self.root,text="\uE1DC",command=lambda:openCalendar(self.root,self.var_created_time,self.btn_date_picker),font=("Segoe MDL2 Assets",14),bg="white")
         self.btn_date_picker.place(x=355,y=389,width=30)
         ##================Button Frame===========================
         btn_save=Button(self.root,text="Save",command=self.add,font=("goudy old style",15),bg="#33bbf9",fg="white",cursor="hand2").place(x=20,y=460,width=90,height=28)
@@ -320,27 +320,27 @@ class product:
         self.var_supplier=StringVar()
         self.var_created_time=StringVar()
         self.var_remark=StringVar()
-    def openCalendar(self):
-        self.cal_win=Toplevel(self.root)
-        self.cal_win.title("Calendar")
-        x=self.btn_date_picker.winfo_rootx()
-        y=self.btn_date_picker.winfo_rooty()
-        self.cal_win.iconphoto(False,self.iconimg)
+    # def openCalendar(self):
+    #     self.cal_win=Toplevel(self.root)
+    #     self.cal_win.title("Calendar")
+    #     x=self.btn_date_picker.winfo_rootx()
+    #     y=self.btn_date_picker.winfo_rooty()
+    #     self.cal_win.iconphoto(False,self.iconimg)
 
-        self.cal_win.geometry(f"200x220+{x-100}+{y-250}")
-        self.cal_win.resizable(0,0)
-        today=dt.datetime.now()
-        day_=int(today.strftime("%d"))
-        month_=int(today.strftime("%m")) 
-        year_=int(today.strftime("%Y"))
+    #     self.cal_win.geometry(f"200x220+{x-100}+{y-250}")
+    #     self.cal_win.resizable(0,0)
+    #     today=dt.datetime.now()
+    #     day_=int(today.strftime("%d"))
+    #     month_=int(today.strftime("%m")) 
+    #     year_=int(today.strftime("%Y"))
      
-        self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
-        self.cal.pack(side=TOP,fill=X)
-        ok = Button(self.cal_win,command=self.setDate,text="OK",bg="orange",fg="blue")
-        ok.pack(side=BOTTOM,padx=5)
-    def setDate(self):
-        self.var_created_time.set(self.cal.get_date())
-        self.cal_win.destroy()
+    #     self.cal = Calendar(self.cal_win, date_pattern="dd/MM/yyyy",selectmode = 'day',year = year_, month = month_,day = day_)
+    #     self.cal.pack(side=TOP,fill=X)
+    #     ok = Button(self.cal_win,command=self.setDate,text="OK",bg="orange",fg="blue")
+    #     ok.pack(side=BOTTOM,padx=5)
+    # def setDate(self):
+    #     self.var_created_time.set(self.cal.get_date())
+    #     self.cal_win.destroy()
 if __name__=="__main__":
     root= Tk()
     app= product(root)
