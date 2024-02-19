@@ -1,9 +1,8 @@
-update1.0.3
--ims quick actions and added shortcut keys
--product wrong index with status,remove cost column 
--database remove product table's sprice column
--remove wallet functions,fixed calendar widget 
--fixed buy page connection problem
--change buyid to by
--visible wallet's functions to visible from other class
--bill filter product's status
+update1.0.4
+-add datepicker button to authentication, remove unwanted import
+-adjust logo size, change voucherid and timestamp module in bill
+-remove sellingprice column,autofill current date in buy
+-show number of qty that lower than 10 and quick shortcut key to menus,quit for system shutdown
+-adjust table width in product
+-better calendar location in tool
+-fixed error while updating, deleting in wallet transaction
