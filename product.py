@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from database import connect_db
-from tool_ import isStatusOK,loadConfig, openCalendar
+from tool_ import generate_timestamp, isStatusOK,loadConfig, openCalendar
 from PIL import ImageTk
 import os
 import datetime as dt
@@ -33,7 +33,7 @@ class product:
         btn_search=Button(searchFrame,command=self.search,text="Search",font=("goudy old style",15),bg="#4caf50",fg="white",cursor="hand2").place(x=410,y=3,width=150,height=30)
  #===================Employee Details==============================
         title_product= Label(self.root,text="Product Details",bg="#0f4d7d",fg="white",font=("goudy old style",15,"bold")).place(x=5,y=10,width=1090)
-        lbl_list=["PID:","Name:","Description:","Quantity:","Price","Status","Category:","Supplier:","CreatedTime:","Remark:"]
+        lbl_list=["PID:","Name:","Description:","Quantity:","SellingPrice","Status","Category:","Supplier:","CreatedTime:","Remark:"]
         ent_list=[self.var_pid,self.var_name,self.var_description,self.var_qty,self.var_price]
 
         y=50
@@ -76,7 +76,7 @@ class product:
         scrollx.config(command=self.pro_table.xview)
         scrolly.config(command=self.pro_table.yview)
         self.pro_table.heading("1",text="Sr.")
-        self.pro_table.heading("2",text="ProID")
+        self.pro_table.heading("2",text="PID")
         self.pro_table.heading("3",text="Name")
         self.pro_table.heading("4",text="Description")
         self.pro_table.heading("5",text="Qty")
@@ -89,15 +89,15 @@ class product:
         
         self.pro_table["show"]="headings"
         self.pro_table.column("1",width=10)
-        self.pro_table.column("2",width=50)
+        self.pro_table.column("2",width=70)
         self.pro_table.column("3",width=100)
-        self.pro_table.column("4",width=100)
-        self.pro_table.column("5",width=50)
-        self.pro_table.column("7",width=50)
+        self.pro_table.column("4",width=150)
+        self.pro_table.column("5",width=50,anchor="e")
+        self.pro_table.column("7",width=70,anchor="e")
         self.pro_table.column("8",width=70)
         self.pro_table.column("9",width=100)
         self.pro_table.column("10",width=100)
-        self.pro_table.column("11",width=50)
+        self.pro_table.column("11",width=70)
         self.pro_table.column("12",width=50)
 
         self.pro_table.pack(fill=BOTH,expand=1)
@@ -180,7 +180,7 @@ class product:
                     messagebox.showerror("Error","Duplicate product\'s id",parent=self.root)
                     
                 else:
-                    sql="INSERT INTO product(pid,name,description,qty,price,status,category,supplier,created_time,remark) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                    sql="INSERT INTO product(pid,name,description,qty,price,status,category,supplier,created_time,remark) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
                     val=(self.var_pid.get(),self.var_name.get(),
                          self.var_description.get(),self.var_qty.get(),
                          self.var_price.get(),self.var_status.get(),
@@ -276,7 +276,7 @@ class product:
         self.var_status.set("Select")
         self.var_category.set("Select")
         self.var_supplier.set("Select")
-        self.var_created_time.set("")
+        self.var_created_time.set(generate_timestamp("%d/%m/%Y"))
         self.var_remark.set("")
 
         self.show()
@@ -313,6 +313,7 @@ class product:
         self.var_category=StringVar()
         self.var_supplier=StringVar()
         self.var_created_time=StringVar()
+        self.var_created_time.set(generate_timestamp("%d/%m/%Y"))
         self.var_remark=StringVar()
     
 if __name__=="__main__":

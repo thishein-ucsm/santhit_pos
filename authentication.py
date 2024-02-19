@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from database import connect_db
-from tool_ import isStatusOK,loadConfig
+from tool_ import generate_timestamp, isStatusOK,loadConfig, openCalendar
 import os
 from PIL import ImageTk
 class authentication:
@@ -56,9 +56,12 @@ class authentication:
 
 
         lbl_created_time= Label(self.root,text="CreatedTime:",bg="white",font=("goudy old style",15,"bold")).place(x=50,y=290)
-        # self.txt_address= Text(self.root,font=("goudy old style",15,"bold"),bg="lightyellow")
-        # self.txt_address.place(x=170,y=250,width=180,height=100)
+       
         txt_created_time= Entry(self.root,textvariable=self.var_user_created_time,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=290,width=180)
+        # txt_ctime= Entry(self.root,textvariable=self.var_created_time,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=355,width=180)
+        # txt_remark= Entry(self.root,textvariable=self.var_remark,bg="lightyellow",font=("goudy old style",15,"bold")).place(x=170,y=392,width=180)
+        self.btn_date_picker=Button(self.root,text="\uE1DC",command=lambda:openCalendar(self.root,self.var_user_created_time,self.btn_date_picker),font=("Segoe MDL2 Assets",14),bg="white")
+        self.btn_date_picker.place(x=355,y=290,width=30)
         lbl_usertype= Label(self.root,text="UserType:",bg="white",font=("goudy old style",15,"bold")).place(x=50,y=330)
         
         cmb_usertype=ttk.Combobox(self.root,textvariable=self.var_usertype,values=("Select","administrator","accountant","cashier","user"),state='readonly',justify=CENTER,font=("goudy old style",15))
@@ -248,7 +251,7 @@ class authentication:
         self.var_password.set("")
         self.var_email.set("")
         self.var_status.set("Select")
-        self.var_user_created_time.set("")
+        self.var_user_created_time.set(generate_timestamp("%d/%m/%Y"))
         self.var_usertype.set("")
 
         self.show()
@@ -282,6 +285,8 @@ class authentication:
         self.var_username=StringVar()
         self.var_password=StringVar()
         self.var_user_created_time=StringVar()
+        self.var_user_created_time.set(generate_timestamp("%d/%m/%Y"))
+
         self.var_email=StringVar()
         self.var_usertype=StringVar()
         # self.var_password="_"

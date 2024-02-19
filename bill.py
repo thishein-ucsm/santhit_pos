@@ -2,11 +2,12 @@ from os import path
 import os
 from tkinter import messagebox
 from PIL import ImageTk
+from PIL import Image as img
 from tkinter import *
 import datetime as dt
 from tkinter import ttk
 from database import connect_db
-from tool_ import isStatusOK, loadConfig
+from tool_ import isStatusOK, loadConfig,generate_timestamp
 import tempfile
 class bill:
     def __init__(self,root,user="guest") -> None:
@@ -23,9 +24,10 @@ class bill:
         self.iconimg=ImageTk.PhotoImage(file=f'{self.ROOT_DIR}icon.png')
         self.root.iconphoto(False,self.iconimg)
 
-        image_ = path.abspath(path.join(self.ROOT_DIR, 'logo1.jpg'))
-
-        self.sideimg=ImageTk.PhotoImage(file=image_)
+        self.sideimg=img.open(f'{self.ROOT_DIR}logo1.jpg')
+        self.sideimg=self.sideimg.resize((150,60),img.ADAPTIVE)
+        self.sideimg=ImageTk.PhotoImage(self.sideimg)
+        
 
         self.title=Label(self.root,image=self.sideimg,text="SanThit - Inventory Management System ",compound=LEFT,font=("times new roman",39,"bold"),bg="#010c48",fg="white",anchor=W,padx=20).place(x=0,y=0,relwidth=1,height=70)
         self.lbl_clock=Label(self.root,text=f"Welcome to Inventory Management System\t\tDate: DD-MM-YYYY\t\t Time: HH:MM:SS\t\t Auth: {self.user.capitalize()}",font=("times new roman",15,"bold"),bg="#4D636d",fg="white")
@@ -191,7 +193,7 @@ class bill:
 
 
         frame_mid3=Frame(self.root,bd=4,relief=RAISED)
-        frame_mid3.place(x=454,y=567,width=540,height=105)
+        frame_mid3.place(x=454,y=567,width=540,height=107)
 
         Label(frame_mid3,text="Product Name",font=("times new roman",15,"bold")).place(x=2,y=2,width=200,height=18)
         Label(frame_mid3,text="Price/Qty",font=("times new roman",15,"bold")).place(x=210,y=2,width=100,height=18)
@@ -394,7 +396,6 @@ class bill:
 
                     con.commit()
                     self.showAll()
-                    # messagebox.showinfo("Message","Successfully inserted into Database!",parent=self.root)
                 else:
                     messagebox.showerror("Error","You are missing some data!",parent=self.root)
 
@@ -403,11 +404,10 @@ class bill:
         except Exception as ex:
             messagebox.showerror("Error2",f"Error due to : {(ex)}",parent=self.root)
     def generate_voucherid(self):
-        today=dt.datetime.now()
-        date_=today.strftime("%d%m%y") 
-        time_=today.strftime("%H%M%S")
+        date_=generate_timestamp("%d%m%y") 
+        time_=generate_timestamp("%H%M%S")
         self.invoice=(time_)+"_"+(date_)
-        self.date_=str(today.strftime("%d-%m-%y"))
+        self.date_=str(generate_timestamp("%d-%m-%y"))
     def bill_top(self):
         
         bill_top_text=f'''
@@ -448,9 +448,8 @@ Thank you for purchasing to SanThit Shop
             fi.close()
         messagebox.showinfo("Success","Bill Slip has been saved",parent=self.root)
     def update_time(self):
-        today=dt.datetime.now()
-        date_=today.strftime("%d-%b-%Y") 
-        time_=today.strftime("%H:%M:%S")
+        date_=generate_timestamp("%d-%b-%Y") 
+        time_=generate_timestamp("%H:%M:%S")
         self.lbl_clock.config(text=f"Welcome to Inventory Management System\t\tDate: {date_}\t\t Time: {time_}\t\tAuth: {self.user.capitalize()}")
         self.lbl_clock.after(1000,self.update_time)
     def logout(self):

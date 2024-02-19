@@ -37,7 +37,7 @@ class buy:
     
 #===================Employee Details==============================
         title_buy= Label(self.root,text="Buy Details",bg="#0f4d7d",fg="white",font=("goudy old style",15,"bold")).place(x=5,y=10,width=1090)
-        lbl_list=["PID:","BuyID:","Name:","Description:","Cost:","SellingPrice","Quantity:","Supplier:","Date:","Exp_date:"]
+        lbl_list=["PID:","BuyID:","Name:","Description:","Cost:","Quantity:","Supplier:","Date:","Exp_date:"]
         y=50
         for i in lbl_list:
             Label(self.root,text=i,bg="white",font=("goudy old style",15,"bold")).place(x=50,y=y)
@@ -56,19 +56,19 @@ class buy:
         
         Entry(self.root,textvariable=self.var_cost,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=210,width=180)
 
-        Entry(self.root,textvariable=self.var_price,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=250,width=180)
-        Entry(self.root,textvariable=self.var_qty,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=290,width=180)
+        # Entry(self.root,textvariable=self.var_price,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=250,width=180)
+        Entry(self.root,textvariable=self.var_qty,state="normal",font=("goudy old style",15,"bold"),background="lightyellow").place(x=170,y=250,width=180)
         
         self.cmb_supplier=ttk.Combobox(self.root,textvariable=self.var_sup,values=("Select"),state="readonly",justify=CENTER,font=("goudy old style",15))
-        self.cmb_supplier.place(x=170,y=330,width=180)
+        self.cmb_supplier.place(x=170,y=290,width=180)
         self.cmb_supplier.current(0)
-        Entry(self.root,textvariable=self.var_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=370,width=180)
-        Entry(self.root,textvariable=self.var_exp_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=410,width=180)
+        Entry(self.root,textvariable=self.var_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=330,width=180)
+        Entry(self.root,textvariable=self.var_exp_date,state="readonly",font=("goudy old style",15,"bold"),readonlybackground="lightyellow").place(x=170,y=370,width=180)
         self.btn_date_picker=Button(self.root,text="\uE1DC",command=lambda :openCalendar(self.root,self.var_date,self.btn_date_picker),font=("Segoe MDL2 Assets",14),bg="white")
-        self.btn_date_picker.place(x=355,y=367,width=30)
+        self.btn_date_picker.place(x=355,y=327,width=30)
 
         self.btn_exp_picker=Button(self.root,text="\uE1DC",command=lambda :openCalendar(self.root,self.var_exp_date,self.btn_exp_picker),font=("Segoe MDL2 Assets",14),bg="white")
-        self.btn_exp_picker.place(x=355,y=407,width=30)
+        self.btn_exp_picker.place(x=355,y=367,width=30)
 
         
         btn_save=Button(self.root,text="Save",command=self.add,font=("goudy old style",15),bg="#33bbf9",fg="white",cursor="hand2").place(x=20,y=450,width=90,height=28)
@@ -171,19 +171,19 @@ class buy:
                         if check_digit(temp):
                             mycur.execute(sql,val)
                             con.commit()
-                            print("ok1")
+                            # print("ok1")
                             sql="select qty from product where pid=%s"
                             val=(self.var_pid.get(),)
                             mycur.execute(sql,val)
                             a=mycur.fetchone()
                             b=int(a[0])+int(self.var_qty.get())
-                            print("ok2")
+                            # print("ok2")
                             sql="update product set qty=%s where pid=%s"
                             val=(b,self.var_pid.get())
                             mycur.execute(sql,val)
                             con.commit()
                             con.close()
-                            print("ok3")
+                            # print("ok3")
                             withdraw=int(self.var_cost.get())*int(self.var_qty.get())
                             wallet.save_wallet(self.var_buyid.get(),self.var_description.get(),0,withdraw,self.var_date.get())
                             self.clear()
@@ -269,7 +269,7 @@ class buy:
                                 new_cost=int(self.var_cost.get())*int(self.var_qty.get())
                                 withdraw_dif=old_cost-new_cost
                                 
-                                print("new cost",new_cost)
+                                # print("new cost",new_cost)
                                 wallet.update_wallet(self.var_buyid.get(),self.var_description.get(),0,new_cost,self.var_date.get())
 
                                 self.clear()
@@ -296,23 +296,24 @@ class buy:
                 if row==None:
                     messagebox.showerror("Error","There is no record found with your Buy\'s ID",parent=self.root)
                 else:
-                    a=int(row[0])
+                    qty_remove=int(row[0])
                     ans=messagebox.askyesno("Confirmation",f"Are you sure want to Delete {self.var_buyid.get()}?",parent=self.root)
                     if ans==True:
                         mycur.execute("DELETE FROM buy where buyid=%s",(self.var_buyid.get(),))
                         con.commit()
                         mycur.execute("select qty from product where pid=%s",(self.var_pid.get(),))
-                        temp=mycur.fetchone()
-                        b=int(temp[0])
-                        c=b-a
+                        result=mycur.fetchone()
+                        old_qty=int(result[0])
+                        c=old_qty-qty_remove
                         mycur.execute("update product set qty=%s where pid=%s",(c,self.var_pid.get()))
                         con.commit()
-                        sql="select withdraw from wallet where description=%s"
+                        sql="select withdraw from wallet where id=%s"
                         val=(self.var_buyid.get(),)
                         mycur.execute(sql,val)
-                        x=mycur.fetchone()
-                        delete_wallet(self.var_buyid.get(),0,x[0])
-                        messagebox.showinfo("Success","Your Record has been Deleted from Database!",parent=self.root)
+                        result=mycur.fetchone()
+                        if result:
+                            wallet.delete_wallet(self.var_buyid.get())
+                            messagebox.showinfo("Success","Your Record has been Deleted from Database!",parent=self.root)
                         self.clear()
                         self.show()
 
@@ -330,7 +331,7 @@ class buy:
         self.var_qty.set("")
         self.var_category.set("Select")
         self.var_sup.set("Select")
-        self.var_date.set("")
+        self.var_date.set(generate_timestamp("%d/%m/%Y"))
         self.var_exp_date.set("")
 
         self.show()
@@ -359,11 +360,14 @@ class buy:
         self.var_qty=StringVar()
         self.var_sup=StringVar()
         self.var_date=StringVar()
+        self.var_date.set(generate_timestamp("%d/%m/%Y"))
+
         self.var_exp_date=StringVar()
         self.var_buyid.set(generate_id("buy","buyid"))
         self.list_combo=[]
         self.list_aux=[]
         self.var_created_time=StringVar()
+
         self.var_to_build=StringVar()
         self.var_aux=StringVar()
     def search(self):
@@ -386,8 +390,7 @@ class buy:
                 else:
                     messagebox.showinfo("Information","No record found on system",parent=self.root)
         except Exception as ex:
-            messagebox.showerror("Error",str(ex),parent=self.root)
-    
+            messagebox.showerror("Error",str(ex),parent=self.root)  
     def comboData(self):
         conn=connect_db()
         sql_="select pid,name from product"

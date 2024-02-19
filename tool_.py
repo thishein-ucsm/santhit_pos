@@ -41,9 +41,17 @@ def openCalendar(root,txt,btn):
     cal_win.title("Calendar")
     x=btn.winfo_rootx()
     y=btn.winfo_rooty()
-    # cal_win.iconphoto(False,iconimg)
 
-    cal_win.geometry(f"200x220+{x+20}+{y-50}")
+    x1=x+20
+    y1=0
+    if y<220:
+        y1=y
+    elif y>=220 and y<=300:
+        y1=220
+    elif y>350:
+        y1=y-220
+    cal_win.geometry(f"200x220+{x1}+{y1}")
+
     cal_win.resizable(0,0)
     year_ = int(datetime.datetime.now().strftime('%Y'))
     month_ = int(datetime.datetime.now().strftime('%m'))
@@ -115,10 +123,11 @@ def generate_id(table,idname):
     sql=f"select {idname} from {table} order by id desc limit 1"
     mycur.execute(sql)
     row=mycur.fetchone()
-    if row==None:
-        cur_id="by","-"+"0000"
-    else:
+    # print(row)
+    cur_id="by-0000"
+    if row:
         cur_id=row[0]
+    
     a=cur_id.split("-")
     index_=int(a[1])+1
     c=str(index_)
@@ -131,22 +140,6 @@ def generate_id(table,idname):
     return temp
   
 
-# def update_wallet(id,dep,wit,date,dep_dif,wit_dif):
-#     from database import connect_db
-#     des=id
-#     deposit=dep
-#     withdraw=wit
-#     date_=date
-#     dep_dif_=dep_dif
-#     wit_dif_=wit_dif
-#     con=connect_db()
-#     mycur=con.cursor()
-#     sql="update wallet set deposit=%s,withdraw=%s,date=%s where description=%s"
-#     val=(deposit,withdraw,date_,des)
-#     mycur.execute(sql,val)
-#     con.commit()
-#     con.close()
-#     update_balance(des,dep_dif_,wit_dif_)
 # def delete_wallet(id,dep_dif,wit_dif):
 #     from database import connect_db
 

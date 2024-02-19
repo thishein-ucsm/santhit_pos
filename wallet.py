@@ -17,7 +17,7 @@ class wallet:
             self.iconimg=ImageTk.PhotoImage(file=f'{self.ROOT_DIR}icon.png')
             self.root.iconphoto(False,self.iconimg)
             self.root.geometry("1100x500+220+130")
-            self.root.title("Buy @Inventory Management System | Developed by KG")
+            self.root.title("Wallet @Inventory Management System | Developed by KG")
             self.root.config(bg="white")
             self.root.resizable(False,False)
             self.root.focus_force()
@@ -244,7 +244,7 @@ class wallet:
                 var_tuple=(self.var_id.get(),)
                 if isStatusOK(var_tuple):
                     if messagebox.askyesno("Confirmation","Are you sure want to delete the item?",parent=self.root):
-                        self.delete_wallet()
+                        wallet.delete_wallet(self.var_id.get())
                         messagebox.showinfo("Success","Your Record has been Deleted from Database!",parent=self.root)
                         self.clear()
                         self.show()
@@ -253,14 +253,13 @@ class wallet:
                 messagebox.showerror("Error3",f"Error due to : {str(ex)}",parent=self.root)
         
         
-        def delete_wallet(self):
+        def delete_wallet(id):
             con=connect_db()
             mycur=con.cursor()
-            #call adj function and then delete
             con=connect_db()
             mycur=con.cursor()
             sql="select sr,deposit,withdraw from wallet where id=%s"
-            val=(self.var_id.get(),)
+            val=(id,)
 
             mycur.execute(sql,val)
             result=mycur.fetchone()
@@ -275,14 +274,14 @@ class wallet:
                 adj_amt=0
                 if dpo>wd:
                     adj_amt=dpo-wd
-                    self.adjust_wallet(sr,adj_amt,"minus")
+                    wallet.adjust_wallet(sr,adj_amt,"minus")
                 elif wd>dpo:
                     adj_amt=wd-dpo
-                    self.adjust_wallet(sr,adj_amt,"plus")
+                    wallet.adjust_wallet(sr,adj_amt,"plus")
             else:
-                messagebox.showerror("Error","There's no record in the database!",parent=self.root)
+                messagebox.showerror("Error","There's no record in the database!",parent=wallet.root)
             sql="delete from wallet where id=%s"
-            val=(self.var_id.get(),)
+            val=(id,)
             mycur.execute(sql,val)
             con.commit()
             con.close()
@@ -302,7 +301,7 @@ class wallet:
              self.var_deposit.set("")
              self.var_withdraw.set("")
              self.var_type.set("")
-             self.var_date.set("")
+             self.var_date.set(generate_timestamp("%d/%m/%Y"))
              self.var_id.set("")
              self.show()
         def search(self):
@@ -315,9 +314,10 @@ class wallet:
             self.var_withdraw=StringVar()
             self.var_type=StringVar()
             self.var_date=StringVar()
+            self.var_date.set(generate_timestamp("%d/%m/%Y"))
+
             self.var_id=StringVar()
-        def printwallet():
-            print("Greeting from wallet class")    
+            
 if __name__=="__main__":
     root= Tk()
     app= wallet(root)

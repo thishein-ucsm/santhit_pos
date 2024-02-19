@@ -13,7 +13,7 @@ from customer import *
 from billslip import *
 from report import reporter_
 import datetime as dt
-from PIL import ImageTk,Image
+from PIL import ImageTk,Image as img
 from tool_ import *
 from authentication import *
 from wallet import wallet
@@ -30,9 +30,9 @@ class IMS:
 
         self.iconimg=ImageTk.PhotoImage(file=f'{self.ROOT_DIR}icon.png')
         self.root.iconphoto(False,self.iconimg)
-        image_ = path.abspath(path.join(self.ROOT_DIR, 'logo1.jpg'))
-
-        self.sideimg=ImageTk.PhotoImage(file=image_)
+        self.sideimg=img.open(f'{self.ROOT_DIR}logo1.jpg')
+        self.sideimg=self.sideimg.resize((150,60),img.ADAPTIVE)
+        self.sideimg=ImageTk.PhotoImage(self.sideimg)
         self.title=Label(self.root,image=self.sideimg,text="SanThit - Inventory Management System ",compound=LEFT,font=("times new roman",40,"bold"),bg="#010c48",fg="white",anchor=W,padx=20).place(x=0,y=0,relwidth=1,height=70)
         self.lbl_clock=Label(self.root,text=f"Welcome to Inventory Management System\t\tDate: DD-MM-YYYY\t\t Time: HH:MM:SS\t\t Auth: {self.user.capitalize()}",font=("times new roman",15,"bold"),bg="#4D636d",fg="white")
         self.lbl_clock.place(x=0,y=70,relwidth=1,height=30)
@@ -73,6 +73,7 @@ class IMS:
         self.update_total("category",self.lbl_category)
         self.update_total("product",self.lbl_product)
         self.update_total_sale("saleorder",self.lbl_sale)
+        self.update_low_qty("product",self.lbl_belowqty)
 
         self.lbl_category.after(5000,self.update_data)
     def update_total(self,name,lbl):
@@ -91,20 +92,27 @@ class IMS:
         if mycur.rowcount > 0:
             lbl.config(text=f"Total {name.capitalize()}\n[ {mycur.rowcount} ]")
         conn.close()
+    def update_low_qty(self,name,lbl):
+        conn=connect_db()
+        mycur=conn.cursor()
+        mycur.execute(f"SELECT pid FROM {name} where qty<10")
+        mycur.fetchall()
+        if mycur.rowcount > 0:
+            lbl.config(text=f"[ {mycur.rowcount}] items <10")
+        conn.close()
     def clock(self):
-        today=dt.datetime.now()
-        date_=today.strftime("%d-%b-%Y") 
-        time_=today.strftime("%H:%M:%S")
+        date_=generate_timestamp("%d-%b-%Y") 
+        time_=generate_timestamp("%H:%M:%S")
         self.lbl_clock.config(text=f"Welcome to Inventory Management System\t\tDate: {date_}\t\t Time: {time_}\t\tAuth: {self.user.capitalize()}")
         self.lbl_clock.after(1000,self.clock)
     def showMenu(self):
         
         self.LeftMenu= Frame(self.root,bd=3,relief=RIDGE,bg="#ff0011")
-        self.LeftMenu.place(x=2,y=102,width=190,height=575)
+        self.LeftMenu.place(x=2,y=102,width=205,height=575)
         self.lbl_menu=Label(self.LeftMenu,text="Menu",font=("Elephant",20,"bold"),bg="#009688",fg="#ffc107").pack(side=TOP,fill=X)
 
         self.canvas=Canvas(self.LeftMenu,bg="yellow")
-        self.canvas.pack(side=TOP,fill=BOTH,expand=True)
+        self.canvas.pack(side=LEFT,fill=BOTH,expand=True)
         scrollbar = tk.Scrollbar(self.canvas, orient="vertical", command=self.canvas.yview)
         scrollbar.pack(side="right", fill="y")
         self.canvas.configure(yscrollcommand=scrollbar.set)
@@ -121,7 +129,7 @@ class IMS:
        
         self.btn_category=Button(self.btn_frame,text="Category\tCtrl+a",command=lambda: self.openPage(self.btn_category,self.categoryPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_category.pack(side=TOP,fill=X)
-        self.btn_receivable=Button(self.btn_frame,text="Receivable",font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_receivable=Button(self.btn_frame,text="Receivable Ctrl+v",font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_receivable.pack(side=TOP,fill=X)
 
         self.btn_wallet=Button(self.btn_frame,text="Wallet\tCtrl+w",command=lambda: self.openPage(self.btn_wallet,self.walletPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
@@ -129,7 +137,6 @@ class IMS:
         
         self.btn_employee=Button(self.btn_frame,text="Employee Ctrl+e",command=lambda: self.openPage(self.btn_employee,self.employeePage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_employee.pack(side=TOP,fill=X)
-        # self.btn_employee.bind('<Enter>',lambda event: self.btn_employee.config(bg="Lightblue"))
 
         self.btn_supplier=Button(self.btn_frame,text="Supplier\tCtrl+u",command=lambda: self.openPage(self.btn_supplier,self.supplierPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_supplier.pack(side=TOP,fill=X)
@@ -145,6 +152,8 @@ class IMS:
         self.btn_backup=Button(self.btn_frame,text="Backup&Restore",command=lambda:self.openPage(self.btn_backup,self.dbPage),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
         self.btn_backup.pack(side=TOP,fill=X)
      
+        self.btn_quit=Button(self.btn_frame,text="Quit\tCtrl+q",command=lambda:self.closeProgram(None),font=("times new roman",14,"bold"),bg="white",bd=3,cursor="hand2")
+        self.btn_quit.pack(side=TOP,fill=X)
 
         self.btn_frame.bind("<Configure>", self.on_frame_configure)
         self.canvas.bind("<Enter>", lambda event: self.canvas.bind_all("<MouseWheel>", self.on_mousewheel))
@@ -161,10 +170,13 @@ class IMS:
         self.root.bind('<Control-s>',self.showSalePage)
         self.root.bind('<Control-p>',self.showProdPage)
         self.root.bind('<Control-a>',self.showCatPage)
-        # self.root.bind('<Control-5>',self.showCatPage)
         self.root.bind('<Control-w>',self.showWalletPage)
         self.root.bind('<Control-e>',self.showEmpPage)
         self.root.bind('<Control-u>',self.showSupPage)
+        self.root.bind('<Control-m>',self.showCustPage)
+        self.root.bind('<Control-l>',self.showSlipsPage)
+        self.root.bind('<Control-i>',self.showAuthPage)
+        self.root.bind('<Control-r>',self.showRepoPage)
     def showBuyPage(self,event):
         self.openPage(self.btn_buy,self.buyPage)
     def showSalePage(self,event):
@@ -181,6 +193,12 @@ class IMS:
         self.openPage(self.btn_category,self.categoryPage)
     def showWalletPage(self,event):
         self.openPage(self.btn_wallet,self.walletPage)
+    def showSlipsPage(self,event):
+        self.openPage(self.btn_saleslip,self.slipPage)
+    def showAuthPage(self,event):
+        self.openPage(self.btn_auth,self.authenticationPage)
+    def showRepoPage(self,event):
+        self.openPage(self.btn_report,self.reportPage)
     def openPage(self,btn,page):
         if self.new_win!=None: self.new_win.destroy()
         self.inactive_btn()
@@ -226,7 +244,7 @@ class IMS:
         app=loin(root)
         root.mainloop()
     def closeProgram(self,event):
-        self.logout()    
+        self.root.destroy()    
 if __name__=="__main__":
     root= Tk()
     app= IMS(root)
